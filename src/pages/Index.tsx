@@ -1,19 +1,15 @@
 
-import Hero from '../components/Hero';
-import InfoSections from '../components/InfoSections';
-import AssessmentSchedule from '../components/AssessmentSchedule';
-import Resources from '../components/Resources';
-import FAQ from '../components/FAQ';
-import Footer from '../components/Footer';
+import Header from "@/components/common/Header";
+import HeroSection from "@/components/sections/HeroSection";
+import FeaturesSection from "@/components/sections/FeaturesSection";
+import Footer from "@/components/common/Footer";
 
 const Index = () => {
   return (
     <div className="min-h-screen bg-white">
-      <Hero />
-      <InfoSections />
-      <AssessmentSchedule />
-      <Resources />
-      <FAQ />
+      <Header />
+      <HeroSection />
+      <FeaturesSection />
       <Footer />
     </div>
   );

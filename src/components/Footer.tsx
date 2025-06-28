@@ -1,67 +1,44 @@
 
-import { Mail, Phone, MapPin, ExternalLink } from "lucide-react";
-
 const Footer = () => {
   return (
-    <footer className="bg-gray-900 text-white py-12 px-4">
-      <div className="container mx-auto max-w-6xl">
-        <div className="grid md:grid-cols-4 gap-8">
+    <footer className="bg-gray-800 text-white py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
-            <h3 className="text-xl font-bold mb-4">NJSLA</h3>
-            <p className="text-gray-300 mb-4">
-              New Jersey Student Learning Assessments - Supporting student success through comprehensive assessment.
+            <div className="flex items-center mb-4">
+              <div className="text-2xl font-bold text-white">TCAP</div>
+              <div className="text-xl font-medium text-orange-500 ml-2">Success Portal</div>
+            </div>
+            <p className="text-gray-300">
+              Empowering Tennessee students to achieve their best on TCAP assessments through 
+              comprehensive study resources and interactive learning experiences.
             </p>
           </div>
           
           <div>
-            <h4 className="font-semibold mb-4">Quick Links</h4>
-            <ul className="space-y-2 text-gray-300">
-              <li><a href="#" className="hover:text-white transition-colors">Practice Tests</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Study Guides</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Test Schedule</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">FAQ</a></li>
+            <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
+            <ul className="space-y-2">
+              <li><a href="/videos" className="text-gray-300 hover:text-white transition-colors">Video Lessons</a></li>
+              <li><a href="/audio" className="text-gray-300 hover:text-white transition-colors">Audio Resources</a></li>
+              <li><a href="/games" className="text-gray-300 hover:text-white transition-colors">Study Games</a></li>
+              <li><a href="/downloads" className="text-gray-300 hover:text-white transition-colors">Downloads</a></li>
             </ul>
           </div>
           
           <div>
-            <h4 className="font-semibold mb-4">Resources</h4>
-            <ul className="space-y-2 text-gray-300">
-              <li><a href="#" className="hover:text-white transition-colors">For Students</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">For Parents</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">For Educators</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Accessibility</a></li>
-            </ul>
-          </div>
-          
-          <div>
-            <h4 className="font-semibold mb-4">Contact</h4>
-            <div className="space-y-3 text-gray-300">
-              <div className="flex items-center gap-2">
-                <Phone className="w-4 h-4" />
-                <span>(609) 292-4469</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Mail className="w-4 h-4" />
-                <span>assessment@doe.nj.gov</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <MapPin className="w-4 h-4" />
-                <span>Trenton, NJ</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <ExternalLink className="w-4 h-4" />
-                <a href="#" className="hover:text-white transition-colors">NJ DOE Website</a>
-              </div>
-            </div>
+            <h3 className="text-lg font-semibold mb-4">Support</h3>
+            <p className="text-gray-300 mb-2">
+              Need help? Contact us for technical support or content questions.
+            </p>
+            <p className="text-orange-400 font-medium">
+              support@tcapstudyguides.com
+            </p>
           </div>
         </div>
         
-        <div className="border-t border-gray-700 pt-8 mt-8 text-center text-gray-400">
-          <p>&copy; 2024 New Jersey Department of Education. All rights reserved.</p>
-          <p className="mt-2">
-            <a href="#" className="hover:text-white transition-colors mr-4">Privacy Policy</a>
-            <a href="#" className="hover:text-white transition-colors mr-4">Terms of Use</a>
-            <a href="#" className="hover:text-white transition-colors">Accessibility Statement</a>
+        <div className="border-t border-gray-700 mt-8 pt-8 text-center">
+          <p className="text-gray-300">
+            © 2024 TCAP Study Guides. All rights reserved. | Tennessee Assessment Success Portal
           </p>
         </div>
       </div>
