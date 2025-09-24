@@ -20,7 +20,8 @@ interface GameState {
   showResult: boolean;
   carPosition: number;
   streak: number;
-  usedQuestions: Set<string>;
+  questionQueue: MathQuestion[];
+  targetQuestions: number;
 }
 
 const gradeSettings = {
@@ -32,51 +33,58 @@ const gradeSettings = {
   grade8: { problemCount: 45, timeLimit: 270 }
 };
 
-function generateProblem(grade: string, difficulty: 'easy' | 'medium' | 'hard' | 'mixed', usedQuestions: Set<string>): MathQuestion {
+const defaultProblem: MathQuestion = { question: '2 + 2', answer: 4, operation: 'addition', difficulty: 'easy' };
+
+const buildQuestionQueue = (
+  grade: string,
+  difficulty: 'easy' | 'medium' | 'hard' | 'mixed',
+  maxCount: number
+): MathQuestion[] => {
   const gradeBank = mathQuestionBanks[grade as keyof typeof mathQuestionBanks];
   if (!gradeBank) {
-    return { question: '2 + 2', answer: 4, operation: 'addition', difficulty: 'easy' };
+    return [defaultProblem];
   }
 
+  const operationsOrder: (keyof typeof gradeBank)[] = ['addition', 'subtraction', 'multiplication', 'division'];
   let allQuestions: MathQuestion[] = [];
-  
-  // Collect questions based on difficulty setting
-  Object.values(gradeBank).forEach(operationQuestions => {
-    if (difficulty === 'mixed') {
-      allQuestions = [...allQuestions, ...operationQuestions];
-    } else {
-      allQuestions = [...allQuestions, ...operationQuestions.filter(q => q.difficulty === difficulty)];
-    }
+
+  operationsOrder.forEach(operation => {
+    const operationQuestions = gradeBank[operation];
+    if (!operationQuestions) return;
+    const filtered = difficulty === 'mixed'
+      ? operationQuestions
+      : operationQuestions.filter(q => q.difficulty === difficulty);
+    allQuestions = [...allQuestions, ...filtered];
   });
 
-  // Filter out used questions
-  const availableQuestions = allQuestions.filter(q => !usedQuestions.has(q.question));
-  
-  // If all questions used, reset the used questions set
-  if (availableQuestions.length === 0) {
-    usedQuestions.clear();
-    return allQuestions[Math.floor(Math.random() * allQuestions.length)];
+  if (allQuestions.length === 0) {
+    return [defaultProblem];
   }
 
-  return availableQuestions[Math.floor(Math.random() * availableQuestions.length)];
-}
+  if (maxCount <= 0) {
+    return allQuestions;
+  }
+
+  return allQuestions.slice(0, Math.min(maxCount, allQuestions.length));
+};
 
 const MathFactsSpeedway = () => {
   const [gameState, setGameState] = useState<GameState>({
     grade: "grade3",
     difficulty: "mixed",
-    currentProblem: { question: '2 + 2', answer: 4, operation: 'addition', difficulty: 'easy' },
+    currentProblem: defaultProblem,
     score: 0,
     problemsCorrect: 0,
     problemsTotal: 0,
-    timeLeft: 120,
+    timeLeft: gradeSettings.grade3.timeLimit,
     gameStarted: false,
     gameComplete: false,
     userAnswer: "",
     showResult: false,
     carPosition: 0,
     streak: 0,
-    usedQuestions: new Set()
+    questionQueue: [defaultProblem],
+    targetQuestions: 1
   });
 
   useEffect(() => {
@@ -95,11 +103,11 @@ const MathFactsSpeedway = () => {
   }, [gameState.gameStarted, gameState.gameComplete, gameState.timeLeft]);
 
   const startGame = () => {
-    const settings = gradeSettings[gameState.grade as keyof typeof gradeSettings];
-    const newUsedQuestions = new Set<string>();
-    const firstProblem = generateProblem(gameState.grade, gameState.difficulty, newUsedQuestions);
-    newUsedQuestions.add(firstProblem.question);
-    
+    const settings = gradeSettings[gameState.grade as keyof typeof gradeSettings] ?? gradeSettings.grade3;
+    const queue = buildQuestionQueue(gameState.grade, gameState.difficulty, settings.problemCount);
+    const questionQueue = queue.length > 0 ? queue : [defaultProblem];
+    const firstProblem = questionQueue[0];
+
     setGameState(prev => ({
       ...prev,
       gameStarted: true,
@@ -113,52 +121,51 @@ const MathFactsSpeedway = () => {
       gameComplete: false,
       userAnswer: "",
       showResult: false,
-      usedQuestions: newUsedQuestions
+      questionQueue,
+      targetQuestions: questionQueue.length
     }));
   };
 
   const submitAnswer = () => {
-    if (!gameState.userAnswer.trim()) return;
-    
-    const isCorrect = parseInt(gameState.userAnswer) === gameState.currentProblem.answer;
+    if (!gameState.userAnswer.trim() || gameState.showResult) return;
+
+    const isCorrect = parseInt(gameState.userAnswer, 10) === gameState.currentProblem.answer;
     const newStreak = isCorrect ? gameState.streak + 1 : 0;
-    
-    // Difficulty-based scoring
+
     let baseScore = 100;
     if (gameState.currentProblem.difficulty === 'medium') baseScore = 150;
     if (gameState.currentProblem.difficulty === 'hard') baseScore = 200;
-    
+
     const speedBonus = newStreak >= 3 ? 2 : 1;
     const newPosition = Math.min(100, gameState.carPosition + (isCorrect ? 5 * speedBonus : 0));
-    
+
     setGameState(prev => ({
       ...prev,
       showResult: true,
       problemsCorrect: isCorrect ? prev.problemsCorrect + 1 : prev.problemsCorrect,
       problemsTotal: prev.problemsTotal + 1,
-      score: isCorrect ? prev.score + (baseScore * speedBonus) : prev.score,
+      score: isCorrect ? prev.score + baseScore * speedBonus : prev.score,
       carPosition: newPosition,
       streak: newStreak
     }));
 
     setTimeout(() => {
-      const settings = gradeSettings[gameState.grade as keyof typeof gradeSettings];
-      if (gameState.problemsTotal + 1 >= settings.problemCount || newPosition >= 100) {
-        setGameState(prev => ({ ...prev, gameComplete: true }));
-      } else {
-        const nextProblem = generateProblem(gameState.grade, gameState.difficulty, gameState.usedQuestions);
-        setGameState(prev => {
-          const newUsedQuestions = new Set(prev.usedQuestions);
-          newUsedQuestions.add(nextProblem.question);
-          return {
-            ...prev,
-            currentProblem: nextProblem,
-            userAnswer: "",
-            showResult: false,
-            usedQuestions: newUsedQuestions
-          };
-        });
-      }
+      setGameState(prev => {
+        const remainingQuestions = prev.problemsTotal < prev.targetQuestions;
+        const raceFinished = newPosition >= 100 || !remainingQuestions;
+
+        if (raceFinished) {
+          return { ...prev, gameComplete: true };
+        }
+
+        const nextProblem = prev.questionQueue[prev.problemsTotal] ?? prev.currentProblem;
+        return {
+          ...prev,
+          currentProblem: nextProblem,
+          userAnswer: "",
+          showResult: false
+        };
+      });
     }, 1500);
   };
 
@@ -254,7 +261,7 @@ const MathFactsSpeedway = () => {
               <div>Score: <span className="font-bold text-green-600">{gameState.score}</span></div>
               <div>Time: <span className="font-bold">{formatTime(gameState.timeLeft)}</span></div>
               <div>Streak: <span className="font-bold text-orange-600">{gameState.streak}</span></div>
-              <div>Progress: <span className="font-bold">{gameState.problemsCorrect}/{gameState.problemsTotal}</span></div>
+              <div>Progress: <span className="font-bold">{gameState.problemsCorrect}/{gameState.targetQuestions}</span></div>
             </div>
           </div>
           
@@ -329,7 +336,7 @@ const MathFactsSpeedway = () => {
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>Final Score: <span className="font-bold text-green-600">{gameState.score}</span></div>
                   <div>Time Used: <span className="font-bold">{formatTime(gradeSettings[gameState.grade as keyof typeof gradeSettings].timeLimit - gameState.timeLeft)}</span></div>
-                  <div>Correct: <span className="font-bold">{gameState.problemsCorrect}/{gameState.problemsTotal}</span></div>
+                  <div>Correct: <span className="font-bold">{gameState.problemsCorrect}/{gameState.targetQuestions}</span></div>
                   <div>Accuracy: <span className="font-bold">{gameState.problemsTotal > 0 ? Math.round((gameState.problemsCorrect / gameState.problemsTotal) * 100) : 0}%</span></div>
                 </div>
               </div>

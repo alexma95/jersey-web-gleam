@@ -104,7 +104,7 @@ const SentenceBuilder = () => {
     const endsWithPunctuation = sentence.length > 0 && sentence[sentence.length - 1].type === 'punctuation';
     
     // Advanced rules for higher grades
-    let isValid = hasSubject && hasVerb && hasPunctuation && endsWithPunctuation;
+    const isValid = hasSubject && hasVerb && hasPunctuation && endsWithPunctuation;
     let feedback = "";
     let scoreBonus = 100;
     

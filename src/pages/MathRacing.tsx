@@ -5,11 +5,13 @@ import { Badge } from "@/components/ui/badge";
 import Navigation from "@/components/Navigation";
 import { ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
+import { mathRacingQuestionBank, MathRacingQuestion } from "@/data/mathRacingQuestions";
 
 interface RaceState {
   playerPosition: number;
   opponentPositions: number[];
-  currentProblem: MathProblem;
+  currentProblem: MathRacingQuestion;
+  questions: MathRacingQuestion[];
   score: number;
   time: number;
   problemsCorrect: number;
@@ -17,110 +19,44 @@ interface RaceState {
   gameComplete: boolean;
   selectedAnswer: string;
   showResult: boolean;
+  problemIndex: number;
+  totalQuestions: number;
 }
 
-interface MathProblem {
-  question: string;
-  options: string[];
-  correct: number;
-  explanation: string;
-}
+const OPPONENT_SPEEDS = [0.4, 0.35, 0.3];
 
 const MathRacing = () => {
   const [difficulty, setDifficulty] = useState<"easy" | "medium" | "hard">("easy");
   const [gameStarted, setGameStarted] = useState(false);
+
+  const initialQuestions = mathRacingQuestionBank.easy;
+  const defaultQuestion = initialQuestions[0];
+
   const [raceState, setRaceState] = useState<RaceState>({
     playerPosition: 0,
     opponentPositions: [0, 0, 0],
-    currentProblem: generateProblem("easy"),
+    currentProblem: defaultQuestion,
+    questions: initialQuestions,
     score: 0,
     time: 0,
     problemsCorrect: 0,
     problemsTotal: 0,
     gameComplete: false,
     selectedAnswer: "",
-    showResult: false
+    showResult: false,
+    problemIndex: 0,
+    totalQuestions: initialQuestions.length
   });
-
-  function generateProblem(level: string): MathProblem {
-    const problems = {
-      easy: [
-        {
-          question: "15 + 23 = ?",
-          options: ["38", "35", "40", "33"],
-          correct: 0,
-          explanation: "15 + 23 = 38"
-        },
-        {
-          question: "50 - 17 = ?",
-          options: ["33", "37", "43", "27"],
-          correct: 0,
-          explanation: "50 - 17 = 33"
-        },
-        {
-          question: "8 × 4 = ?",
-          options: ["32", "28", "36", "24"],
-          correct: 0,
-          explanation: "8 × 4 = 32"
-        }
-      ],
-      medium: [
-        {
-          question: "156 + 87 = ?",
-          options: ["243", "233", "253", "223"],
-          correct: 0,
-          explanation: "156 + 87 = 243"
-        },
-        {
-          question: "72 ÷ 8 = ?",
-          options: ["9", "8", "7", "10"],
-          correct: 0,
-          explanation: "72 ÷ 8 = 9"
-        },
-        {
-          question: "15 × 12 = ?",
-          options: ["180", "170", "190", "160"],
-          correct: 0,
-          explanation: "15 × 12 = 180"
-        }
-      ],
-      hard: [
-        {
-          question: "What is 3/4 of 48?",
-          options: ["36", "32", "40", "44"],
-          correct: 0,
-          explanation: "3/4 × 48 = 36"
-        },
-        {
-          question: "0.75 + 0.25 = ?",
-          options: ["1.0", "0.9", "1.1", "0.5"],
-          correct: 0,
-          explanation: "0.75 + 0.25 = 1.0"
-        },
-        {
-          question: "If a car travels 60 miles in 2 hours, what is its speed?",
-          options: ["30 mph", "25 mph", "35 mph", "40 mph"],
-          correct: 0,
-          explanation: "Speed = Distance ÷ Time = 60 ÷ 2 = 30 mph"
-        }
-      ]
-    };
-    
-    const problemSet = problems[level as keyof typeof problems];
-    return problemSet[Math.floor(Math.random() * problemSet.length)];
-  }
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
     if (gameStarted && !raceState.gameComplete) {
       timer = setInterval(() => {
-        setRaceState(prev => ({ ...prev, time: prev.time + 1 }));
-        
-        // Move opponents slowly
         setRaceState(prev => ({
           ...prev,
-          opponentPositions: prev.opponentPositions.map(pos => 
-            Math.min(100, pos + Math.random() * 0.5)
+          time: prev.time + 1,
+          opponentPositions: prev.opponentPositions.map((pos, index) =>
+            Math.min(100, pos + (OPPONENT_SPEEDS[index] ?? 0.25))
           )
         }));
       }, 100);
@@ -129,40 +65,55 @@ const MathRacing = () => {
   }, [gameStarted, raceState.gameComplete]);
 
   const startGame = () => {
+    const questionSet = mathRacingQuestionBank[difficulty] ?? initialQuestions;
+    const startingQuestion = questionSet[0] ?? defaultQuestion;
+
     setRaceState({
       playerPosition: 0,
       opponentPositions: [0, 0, 0],
-      currentProblem: generateProblem(difficulty),
+      currentProblem: startingQuestion,
+      questions: questionSet,
       score: 0,
       time: 0,
       problemsCorrect: 0,
       problemsTotal: 0,
       gameComplete: false,
       selectedAnswer: "",
-      showResult: false
+      showResult: false,
+      problemIndex: 0,
+      totalQuestions: questionSet.length
     });
     setGameStarted(true);
   };
 
   const handleAnswer = (answerIndex: number) => {
+    if (raceState.showResult || raceState.gameComplete) return;
+
     setRaceState(prev => ({ ...prev, selectedAnswer: answerIndex.toString(), showResult: true }));
-    
+
     setTimeout(() => {
-      const isCorrect = answerIndex === raceState.currentProblem.correct;
-      const newPosition = isCorrect ? Math.min(100, raceState.playerPosition + 15) : raceState.playerPosition;
-      const newScore = isCorrect ? raceState.score + 100 : raceState.score;
-      
-      setRaceState(prev => ({
-        ...prev,
-        playerPosition: newPosition,
-        score: newScore,
-        problemsCorrect: isCorrect ? prev.problemsCorrect + 1 : prev.problemsCorrect,
-        problemsTotal: prev.problemsTotal + 1,
-        currentProblem: generateProblem(difficulty),
-        selectedAnswer: "",
-        showResult: false,
-        gameComplete: newPosition >= 100
-      }));
+      setRaceState(prev => {
+        if (prev.gameComplete) return prev;
+
+        const isCorrect = answerIndex === prev.currentProblem.correct;
+        const basePoints = difficulty === "hard" ? 200 : difficulty === "medium" ? 150 : 100;
+        const newPosition = isCorrect ? Math.min(100, prev.playerPosition + 15) : prev.playerPosition;
+        const nextIndex = prev.problemIndex + 1;
+        const hasMore = nextIndex < prev.totalQuestions;
+
+        return {
+          ...prev,
+          playerPosition: newPosition,
+          score: isCorrect ? prev.score + basePoints : prev.score,
+          problemsCorrect: isCorrect ? prev.problemsCorrect + 1 : prev.problemsCorrect,
+          problemsTotal: prev.problemsTotal + 1,
+          currentProblem: hasMore ? prev.questions[nextIndex] : prev.currentProblem,
+          selectedAnswer: "",
+          showResult: false,
+          gameComplete: newPosition >= 100 || !hasMore,
+          problemIndex: hasMore ? nextIndex : prev.problemIndex
+        };
+      });
     }, 2000);
   };
 
@@ -171,6 +122,10 @@ const MathRacing = () => {
     const cs = centiseconds % 10;
     return `${seconds}.${cs}s`;
   };
+
+  const accuracy = raceState.problemsTotal
+    ? Math.round((raceState.problemsCorrect / raceState.problemsTotal) * 100)
+    : 0;
 
   if (!gameStarted) {
     return (
@@ -241,7 +196,7 @@ const MathRacing = () => {
             <div className="flex items-center gap-4 text-sm">
               <div>Score: <span className="font-bold text-red-600">{raceState.score}</span></div>
               <div>Time: <span className="font-bold">{formatTime(raceState.time)}</span></div>
-              <div>Correct: <span className="font-bold text-green-600">{raceState.problemsCorrect}/{raceState.problemsTotal}</span></div>
+              <div>Correct: <span className="font-bold text-green-600">{raceState.problemsCorrect}/{raceState.totalQuestions}</span></div>
             </div>
           </div>
           
@@ -322,7 +277,7 @@ const MathRacing = () => {
                   <div>Final Score: <span className="font-bold text-red-600">{raceState.score}</span></div>
                   <div>Race Time: <span className="font-bold">{formatTime(raceState.time)}</span></div>
                   <div>Problems Solved: <span className="font-bold">{raceState.problemsCorrect}</span></div>
-                  <div>Accuracy: <span className="font-bold">{Math.round((raceState.problemsCorrect / raceState.problemsTotal) * 100)}%</span></div>
+                  <div>Accuracy: <span className="font-bold">{accuracy}%</span></div>
                 </div>
               </div>
               
