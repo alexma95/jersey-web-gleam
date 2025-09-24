@@ -5,20 +5,10 @@ import { Badge } from "@/components/ui/badge";
 import Navigation from "@/components/Navigation";
 import { ArrowLeft, Beaker, Microscope, FlaskConical } from "lucide-react";
 import { Link } from "react-router-dom";
-
-interface Experiment {
-  id: string;
-  title: string;
-  description: string;
-  materials: string[];
-  steps: string[];
-  observations: string[];
-  conclusion: string;
-  safetyNote: string;
-}
+import { scienceExperiments, ScienceExperiment } from "@/data/scienceExperiments";
 
 interface LabState {
-  selectedExperiment: Experiment | null;
+  selectedExperiment: ScienceExperiment | null;
   currentStep: number;
   observations: string[];
   completed: boolean;
@@ -34,76 +24,7 @@ const ScienceLab = () => {
     safetyCheckPassed: false
   });
 
-  const experiments: Experiment[] = [
-    {
-      id: "volcano",
-      title: "Volcanic Eruption",
-      description: "Create a safe chemical reaction that mimics a volcanic eruption",
-      materials: ["Baking soda", "Vinegar", "Dish soap", "Food coloring", "Funnel"],
-      steps: [
-        "Put on safety goggles",
-        "Add 2 tablespoons of baking soda to the volcano model",
-        "Add 3 drops of dish soap",
-        "Add 2 drops of red food coloring",
-        "Slowly pour in 1/4 cup of vinegar",
-        "Observe the reaction"
-      ],
-      observations: [
-        "Fizzing sound occurs",
-        "Foam begins to form",
-        "Red foam overflows like lava",
-        "Reaction gradually slows down"
-      ],
-      conclusion: "When an acid (vinegar) meets a base (baking soda), they react to produce carbon dioxide gas, creating the fizzing eruption effect.",
-      safetyNote: "Always wear safety goggles when mixing chemicals, even safe ones!"
-    },
-    {
-      id: "magnetism",
-      title: "Magnetic Fields",
-      description: "Explore how magnets attract and repel different materials",
-      materials: ["Bar magnet", "Iron filings", "Paper clips", "Coins", "Plastic items"],
-      steps: [
-        "Place the bar magnet on the table",
-        "Sprinkle iron filings around the magnet",
-        "Observe the pattern formed",
-        "Test different materials with the magnet",
-        "Record which items are attracted",
-        "Try bringing two magnets together"
-      ],
-      observations: [
-        "Iron filings form curved lines",
-        "Paper clips stick to the magnet",
-        "Coins may or may not be attracted",
-        "Plastic items are not attracted"
-      ],
-      conclusion: "Magnets create invisible force fields that attract ferromagnetic materials like iron and steel, but not non-magnetic materials like plastic.",
-      safetyNote: "Keep magnets away from electronic devices and credit cards!"
-    },
-    {
-      id: "plants",
-      title: "Plant Growth",
-      description: "Observe how plants respond to different conditions",
-      materials: ["Bean seeds", "Soil", "Pots", "Water", "Light source", "Measuring ruler"],
-      steps: [
-        "Plant seeds in three different pots",
-        "Place one pot in sunlight",
-        "Place one pot in darkness",
-        "Place one pot in partial shade",
-        "Water all plants equally",
-        "Measure growth daily for one week"
-      ],
-      observations: [
-        "Sunlight plant grows tallest",
-        "Dark plant grows slowly and pale",
-        "Partial shade plant grows moderately",
-        "All plants need water to survive"
-      ],
-      conclusion: "Plants need sunlight for photosynthesis to grow healthy and strong. Without adequate light, plants become weak and pale.",
-      safetyNote: "Wash hands after handling soil and plants!"
-    }
-  ];
-
-  const startExperiment = (experiment: Experiment) => {
+  const startExperiment = (experiment: ScienceExperiment) => {
     setLabState({
       selectedExperiment: experiment,
       currentStep: 0,
@@ -160,23 +81,21 @@ const ScienceLab = () => {
             </p>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {experiments.map((experiment) => (
+              {scienceExperiments.map((experiment) => (
                 <div key={experiment.id} className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow">
-                  <div className="text-4xl mb-4">
-                    {experiment.id === 'volcano' ? '🌋' : 
-                     experiment.id === 'magnetism' ? '🧲' : '🌱'}
-                  </div>
+                  <div className="text-4xl mb-4">{experiment.icon}</div>
                   <h3 className="text-xl font-bold mb-2">{experiment.title}</h3>
                   <p className="text-gray-600 mb-4">{experiment.description}</p>
-                  <div className="mb-4">
+                  <div className="mb-4 flex flex-wrap gap-2">
                     <Badge variant="outline" className="mr-2">
                       {experiment.steps.length} Steps
                     </Badge>
-                    <Badge variant="outline">
+                    <Badge variant="outline" className="mr-2">
                       {experiment.materials.length} Materials
                     </Badge>
+                    <Badge variant="secondary">{experiment.focus}</Badge>
                   </div>
-                  <Button 
+                  <Button
                     onClick={() => startExperiment(experiment)}
                     className="w-full bg-green-600 hover:bg-green-700"
                   >
