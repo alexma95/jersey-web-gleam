@@ -4,8 +4,6 @@ import { motion } from "framer-motion";
 
 const Footer = () => {
   const quickLinks = [
-    { name: "Video Lessons", path: "/videos", icon: "🎥" },
-    { name: "Audio Resources", path: "/audio", icon: "🎧" },
     { name: "Study Games", path: "/games", icon: "🎮" },
     { name: "Downloads", path: "/downloads", icon: "📚" },
   ];

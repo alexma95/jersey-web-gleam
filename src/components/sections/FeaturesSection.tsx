@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Gamepad2, Video, Headphones, Download, Award, Clock, Users, TrendingUp, Sparkles, Zap } from "lucide-react";
+import { Gamepad2, Download, Award, Clock, Users, TrendingUp, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 
 const FeaturesSection = () => {
@@ -16,25 +16,9 @@ const FeaturesSection = () => {
       darkBgColor: "from-blue-950/20 to-indigo-950/20"
     },
     {
-      icon: Video,
-      title: "Expert Video Lessons",
-      description: "Comprehensive video tutorials covering every NJSLA topic with clear explanations and practical examples.",
-      color: "from-emerald-500 to-teal-600",
-      bgColor: "from-emerald-50 to-teal-50",
-      darkBgColor: "from-emerald-950/20 to-teal-950/20"
-    },
-    {
-      icon: Headphones,
-      title: "Audio Learning Resources",
-      description: "Listen and learn with our audio-first content designed for auditory learners and on-the-go studying.",
-      color: "from-purple-500 to-violet-600",
-      bgColor: "from-purple-50 to-violet-50",
-      darkBgColor: "from-purple-950/20 to-violet-950/20"
-    },
-    {
       icon: Download,
       title: "Downloadable Materials",
-      description: "Print-ready worksheets, practice tests, and study guides that you can use offline anytime.",
+      description: "Print-ready worksheets, practice tests, and study guides for Grades 3-5 that you can use offline anytime.",
       color: "from-orange-500 to-red-500",
       bgColor: "from-orange-50 to-red-50",
       darkBgColor: "from-orange-950/20 to-red-950/20"
