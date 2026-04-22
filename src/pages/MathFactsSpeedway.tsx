@@ -45,11 +45,11 @@ const buildQuestionQueue = (
     return [defaultProblem];
   }
 
-  const operationsOrder: (keyof typeof gradeBank)[] = ['addition', 'subtraction', 'multiplication', 'division'];
+  const operationsOrder = ['addition', 'subtraction', 'multiplication', 'division'] as const;
   let allQuestions: MathQuestion[] = [];
 
   operationsOrder.forEach(operation => {
-    const operationQuestions = gradeBank[operation];
+    const operationQuestions = (gradeBank as Record<string, MathQuestion[] | undefined>)[operation];
     if (!operationQuestions) return;
     const filtered = difficulty === 'mixed'
       ? operationQuestions
