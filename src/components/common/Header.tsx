@@ -13,8 +13,6 @@ const Header = () => {
   const menuItems = [
     { name: "Home", path: "/", icon: "🏠" },
     { name: "Study Games", path: "/games", icon: "🎮" },
-    { name: "Video Lessons", path: "/videos", icon: "🎥" },
-    { name: "Audio Resources", path: "/audio", icon: "🎧" },
     { name: "Downloads", path: "/downloads", icon: "📚" },
   ];
 

@@ -3,10 +3,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Index from "./pages/Index";
-import Videos from "./pages/Videos";
-import Audio from "./pages/Audio";
 import Downloads from "./pages/Downloads";
 import Games from "./pages/Games";
 import VocabularyMatch from "./pages/VocabularyMatch";
@@ -28,8 +26,8 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route path="/videos" element={<Videos />} />
-          <Route path="/audio" element={<Audio />} />
+          <Route path="/videos" element={<Navigate to="/downloads" replace />} />
+          <Route path="/audio" element={<Navigate to="/downloads" replace />} />
           <Route path="/downloads" element={<Downloads />} />
           <Route path="/games" element={<Games />} />
           <Route path="/games/vocabulary-match" element={<VocabularyMatch />} />
