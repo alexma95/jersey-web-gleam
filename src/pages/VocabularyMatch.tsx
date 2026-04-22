@@ -162,7 +162,7 @@ const VocabularyMatch = () => {
 
   // Timer effect
   useEffect(() => {
-    let timer: NodeJS.Timeout;
+    let timer: ReturnType<typeof setInterval>;
     if (gameState.gameStarted && !gameState.gameComplete && gameState.timeLeft > 0) {
       timer = setInterval(() => {
         setGameState(prev => {
